@@ -3,7 +3,6 @@
 #include <vector>
 #include <cstdint>
 
-//template <typename T> class FileInterface
 class FileInterface
 {
 public:
@@ -12,6 +11,8 @@ public:
 	virtual void loadFile(const std::string& filename) = 0;
 	// close the currently open file
 	virtual void freeFile() = 0;
+	// returns the currently open file name, empty if no file loaded
+	virtual const std::string& getFilename() const = 0;
 	// read and return file as an array of bytes
-	virtual std::unique_ptr<std::vector<uint8_t>> getFileContents() = 0;
+	virtual std::unique_ptr<std::vector<uint8_t>> getFileContents() const = 0;
 };
