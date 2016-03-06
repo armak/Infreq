@@ -1,5 +1,6 @@
 #include "fileinterface.h"
 #include <fstream>
+#include <iostream>
 
 class WavLoader: public FileInterface
 {
@@ -17,7 +18,7 @@ public:
 	
 	void loadFile(const std::string& filename)
 	{
-		file_.open(filename, std::fstream::in | std::fstream::binary);
+		file_.open(filename, std::fstream::in | std::fstream::binary | std::fstream::ate);
 		filename_ = filename;
 	}
 
@@ -33,10 +34,20 @@ public:
 
 	std::unique_ptr<std::vector<uint8_t>> getFileContents() const
 	{
+		std::streamsize size = file_.tellg();
+		std::cout << size << std::endl;
+		file_.seekg(0, std::ios::beg);
+		std::vector<char> buffer(size);
+		if (file_.read( buffer.data(), size))
+		{
+			std::cout << "File read successfully." << std::endl;
+		}
+
 		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>);
+		contents->assign(buffer.begin(), buffer.end());
 		return contents;
 	}
 private:
-	std::fstream file_;
+	mutable std::fstream file_;
 	std::string filename_;
 };
