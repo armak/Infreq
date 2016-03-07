@@ -24,6 +24,7 @@ public:
 
 	void freeFile()
 	{
+		file_.close();
 		filename_ = "";
 	}
 	
@@ -35,19 +36,23 @@ public:
 	std::unique_ptr<std::vector<uint8_t>> getFileContents() const
 	{
 		std::streamsize size = file_.tellg();
-		std::cout << size << std::endl;
 		file_.seekg(0, std::ios::beg);
 		std::vector<char> buffer(size);
-		if (file_.read( buffer.data(), size))
+		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>);
+		
+		if (file_.read(buffer.data(), size))
 		{
 			std::cout << "File read successfully." << std::endl;
+			contents->assign(buffer.begin(), buffer.end());
 		}
 
-		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>);
-		contents->assign(buffer.begin(), buffer.end());
 		return contents;
 	}
+
+	WavLoader& operator= (const WavLoader&) = delete;
+	WavLoader(const WavLoader&) = delete;
 private:
 	mutable std::fstream file_;
 	std::string filename_;
+	
 };

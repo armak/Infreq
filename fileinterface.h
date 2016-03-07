@@ -15,4 +15,10 @@ public:
 	virtual const std::string& getFilename() const = 0;
 	// read and return file as an array of bytes
 	virtual std::unique_ptr<std::vector<uint8_t>> getFileContents() const = 0;
+
+	FileInterface& operator= (const FileInterface&) = delete;
+	FileInterface(const FileInterface&) = delete;
+protected:
+	// force a default constructor for inherited classes
+	FileInterface() = default;
 };
