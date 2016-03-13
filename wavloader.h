@@ -65,8 +65,6 @@ public:
 
 	void writeNewData(Bytes& newData)
 	{
-		std::remove(filename_.c_str());
-
 		std::fstream outfile = std::fstream();
 		outfile.open("output.wav", std::fstream::out | std::fstream::binary);// | std::fstream::app);
 		std::ostream_iterator<uint8_t> output(outfile);

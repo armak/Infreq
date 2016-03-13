@@ -3,7 +3,8 @@
 Bytes convertToBytes(const Audio& samples);
 Audio convertToSamples(const Bytes& data);
 
-int main(int argc, char** argv){
+int main(int argc, char** argv)
+{
 	if(argc < 2)
 	{
 		std::cout << "Usage: specinv.exe [filename]" << std::endl;
