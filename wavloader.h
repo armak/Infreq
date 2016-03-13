@@ -1,6 +1,12 @@
 #include "fileinterface.h"
 #include <fstream>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <cstdio>
+
+typedef std::unique_ptr<std::vector<short>> Audio;
+typedef std::unique_ptr<std::vector<uint8_t>> Bytes;
 
 class WavLoader: public FileInterface
 {
@@ -20,6 +26,7 @@ public:
 	{
 		if(file_.is_open()) freeFile();
 		file_.open(filename, std::fstream::in | std::fstream::binary | std::fstream::ate);
+		file_.unsetf(std::ios::skipws);
 		filename_ = filename;
 	}
 
@@ -35,25 +42,38 @@ public:
 		return filename_;
 	}
 
-	std::unique_ptr<std::vector<uint8_t>> getRawFile()
+	Bytes getRawFile()
 	{
 		loadFileToMemory();
-		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>(raw_));
+		Bytes contents(new std::vector<uint8_t>(raw_));
 		return contents;
 	}
 
-	std::unique_ptr<std::vector<uint8_t>> getFileData()
+	Bytes getFileData()
 	{
 		loadFileToMemory();
-		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>(raw_));
+		Bytes contents(new std::vector<uint8_t>( raw_.begin()+offset_, raw_.end() ));
 		return contents;
 	}
 
-	std::unique_ptr<std::vector<uint8_t>> getFileHeader()
+	Bytes getFileHeader()
 	{
 		loadFileToMemory();
-		std::unique_ptr<std::vector<uint8_t>> contents(new std::vector<uint8_t>(raw_));
+		Bytes contents(new std::vector<uint8_t>( raw_.begin(), raw_.begin()+offset_-1 ));
 		return contents;
+	}
+
+	void writeNewData(Bytes& newData)
+	{
+		std::remove(filename_.c_str());
+
+		std::fstream outfile = std::fstream();
+		outfile.open("output.wav", std::fstream::out | std::fstream::binary);// | std::fstream::app);
+		std::ostream_iterator<uint8_t> output(outfile);
+
+		std::vector<uint8_t> newFile;
+		std::copy(raw_.begin(), raw_.begin()+offset_, output);
+		std::copy(newData->begin(), newData->end(), output);
 	}
 
 	// these are not needed
@@ -64,6 +84,8 @@ private:
 	mutable std::fstream file_;
 	std::string filename_;
 	std::vector<uint8_t> raw_;
+
+	const int offset_ = 44;
 
 	void loadFileToMemory()
 	{
@@ -76,11 +98,19 @@ private:
 			else
 			{
 				std::streamsize size = file_.tellg();
-				file_.seekg(0, std::ios::beg);
-				raw_ = std::vector<uint8_t>(size);
-				if (file_.read(reinterpret_cast<char*>(raw_.data()), size))
+				if(raw_.max_size() < size)
 				{
-					std::cout << "File read successfully." << std::endl;
+					std::cout << "File too large, aborting." << std::endl;
+				}
+				else
+				{
+					file_.seekg(0, std::ios::beg);
+					raw_ = std::vector<uint8_t>(size);
+					if (file_.read(reinterpret_cast<char*>(raw_.data()), size))
+					{
+						std::cout << "File read successfully." << std::endl;
+					}
+					//raw_.insert(raw_.begin(), std::istream_iterator<uint8_t>(file_), std::istream_iterator<uint8_t>());
 				}
 			}
 		}

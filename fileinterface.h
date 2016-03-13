@@ -19,6 +19,8 @@ public:
 	virtual std::unique_ptr<std::vector<uint8_t>> getFileData() = 0;
 	// Get header information of file, if it exists
 	virtual std::unique_ptr<std::vector<uint8_t>> getFileHeader() = 0;
+	// Write given data to output file using original header
+	virtual void writeNewData(std::unique_ptr<std::vector<uint8_t>>& newData) = 0;
 
 	// these are not needed
 	FileInterface& operator= (const FileInterface&) = delete;
