@@ -17,11 +17,12 @@ int main(int argc, char** argv)
 		auto samples = convertToSamples(data);
 
 		// invert spectrum via inverting every other sample
-		for(auto it = samples->begin(), end = samples->end(); it != end; it+=2)
+		int val = 0;
+		for(auto it = samples->begin(), end = samples->end(); it < end; it+=2)
 		{
 			*it *= -1;
 		}
-
+		
 		// write back to file
 		data->clear();
 		data = convertToBytes(samples);

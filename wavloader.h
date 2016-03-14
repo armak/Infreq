@@ -14,12 +14,12 @@ public:
 	explicit WavLoader() : file_(std::fstream()), filename_(""){}
 	explicit WavLoader(const std::string& filename)
 	{
-		this->loadFile(filename);
+		loadFile(filename);
 	}
 
 	~WavLoader()
 	{
-		this->freeFile();
+		freeFile();
 	}
 	
 	void loadFile(const std::string& filename)
@@ -65,6 +65,7 @@ public:
 
 	void writeNewData(Bytes& newData)
 	{
+		std::cout << "Saving output file." << std::endl;
 		std::fstream outfile = std::fstream();
 		outfile.open("output.wav", std::fstream::out | std::fstream::binary);// | std::fstream::app);
 		std::ostream_iterator<uint8_t> output(outfile);
